@@ -79,3 +79,7 @@ int Item::getTotal() const {
 void Item::setTotal(int total) {
     Item::total = total;
 }
+
+Item::~Item() {
+
+}

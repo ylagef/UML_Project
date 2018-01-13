@@ -4,8 +4,6 @@
 
 #include "Usr.h"
 
-Usr::Usr(const string &username, const string &name, const string &surname, const string &datebirth) : username(
-        username), name(name), surname(surname), datebirth(datebirth) {}
 
 const string &Usr::getUsername() const {
     return username;
@@ -38,3 +36,12 @@ const string &Usr::getDatebirth() const {
 void Usr::setDatebirth(const string &datebirth) {
     Usr::datebirth = datebirth;
 }
+
+Usr::Usr(const string &username, const string &name, const string &surname, const string &datebirth) : username(
+        username), name(name), surname(surname), datebirth(datebirth) {}
+
+Usr::~Usr() {}
+
+
+
+

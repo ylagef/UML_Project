@@ -22,8 +22,11 @@ private:
     int total;
 
 public:
+    Item() {}
     Item(int id, const string &type, const string &brand, const string &model, const string &specs, float price,
          int rented, int sold, int total);
+
+    virtual ~Item();
 
     int getId() const;
 

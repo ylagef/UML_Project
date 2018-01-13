@@ -15,8 +15,13 @@ private:
     string name;
     string surname;
     string datebirth;
+
 public:
+    Usr() {}
+
     Usr(const string &username, const string &name, const string &surname, const string &datebirth);
+
+    virtual ~Usr();
 
     const string &getUsername() const;
 
