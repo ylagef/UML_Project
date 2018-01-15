@@ -137,7 +137,7 @@ void rent() {
         if (i.getType() == type && i.getRented() > 0) { //Just print available products
             rent.emplace_back(i);
             string item_to_print =
-                    "ID " + to_string(i.getId()) + " - " + i.getBrand() + " " + i.getModel() + " " + i.getSpecs() +
+                    "ID " + to_string(i.getId()) + " - " + i.getBrand() + " " + i.getModel() + " / " + i.getSpecs() +
                     "\tItems available: " +
                     to_string(i.getRented()) + "\n";
             cout << item_to_print;
@@ -153,7 +153,6 @@ void rent() {
             if (item_for_rent == to_string(i.getId())) {
                 i.setRented(i.getRented() - 1); //Decrease the rented available.
                 good_id = true;
-
             }
         }
         if (!good_id) {
@@ -176,8 +175,6 @@ void rent() {
     us << to_write << "\n";
     us.close();
     cout << "Item rented perfectly! Thank you " + username + "\n\n";
-
-    //TODO need to decrease the rented quantity on the item.
 }
 
 void buy() {
