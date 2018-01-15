@@ -66,28 +66,40 @@ void setup() {
 //Save the changes made into the files.
 void save_changes() {
     //Save changes on items.txt file
-    ofstream it("../files/items.txt");
+    ofstream it;
+    it.open("../files/items.txt", std::ofstream::out | std::ofstream::trunc);
     for (Item item : items) {
-        string to_write;
-        to_write = item.getId() + "-" + item.getType() + "-" + item.getBrand() + "-" +
-                   item.getModel() + "-" + item.getSpecs() + "-" + to_string(item.getPrice()) +
-                   "-" + to_string(item.getRented()) + "-" + to_string(item.getSold()) + "-" +
-                   to_string(item.getTotal()) + "-";
+        /*
+              int id = item.getId();
+              string type = item.getType();
+              string brand = item.getBrand();
+              string model = item.getModel();
+              string specs = item.getSpecs();
+              string price = to_string(item.getPrice());
+              string rented = to_string(item.getRented());
+              string sold = to_string(item.getSold());
+              string total = to_string(item.getTotal());
+      */
+        string to_write = item.getId() + "-" + item.getType() + "-" + item.getBrand() + "-" +
+                          item.getModel() + "-" + item.getSpecs() + "-" + to_string(item.getPrice()) +
+                          "-" + to_string(item.getRented()) + "-" + to_string(item.getSold()) + "-" +
+                          to_string(item.getTotal()) + "-";
+
+        //string to_write = id + "-" + type + "-" + brand + "-" + model + "-" + specs + "-" + price + "-" + rented + "-"
+        //+sold + "-" + total + "-";
         it << to_write << "\n";
     }
     it.close();
 
-
     //Save changes on users.txt file
-    ofstream us("../files/users.txt");
-    for (Usr user:users) {
-        string to_write;
-        to_write = user.getUsername() + "-" + user.getName() + "-" + user.getSurname() + "-" +
-                   user.getDatebirth() + "-";
+    ofstream us;
+    us.open("../files/users.txt", std::ofstream::out | std::ofstream::trunc);
+    for (Usr user : users) {
+        string to_write = user.getUsername() + "-" + user.getName() + "-" + user.getSurname() + "-" +
+                          user.getDatebirth() + "-";
         us << to_write << "\n";
     }
     us.close();
-
 }
 
 void rent() {
