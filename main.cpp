@@ -178,7 +178,60 @@ void rent() {
 }
 
 void buy() {
+    string type;
+    bool valid = false;
+    while (!valid) {
+        cout
+                << "We have different types:\nL for Laptops.\nM for Mobile.\nD for Desktop.\nC for Console\nWhat do you want to buy?";
+        cin >> type;
+        if (type != "M" || type != "L" || type != "D" || type != "C") {
+            valid = true;
+        }
+    }
 
+    vector<Item> sell;
+    for (Item i : items) {
+        if (i.getType() == type && i.getTotal() > 0) { //Just print available products
+            sell.emplace_back(i);
+            string item_to_print =
+                    "ID " + to_string(i.getId()) + " - " + i.getBrand() + " " + i.getModel() + " / " + i.getSpecs() +
+                    "\tItems available: " +
+                    to_string(i.getTotal()) + "\n";
+            cout << item_to_print;
+        }
+    }
+
+    string item_for_sell;
+    cout << "What item do you want? Choose one id:";
+    cin >> item_for_sell;
+    bool good_id = false;
+    while (!good_id) {
+        for (Item i : sell) {
+            if (item_for_sell == to_string(i.getId())) {
+                i.setTotal(i.getTotal() - 1); //Decrease the selled available.
+                good_id = true;
+            }
+        }
+        if (!good_id) {
+            cout << "The item has to be on the list. Try again: ";
+            cin >> item_for_sell;
+        }
+    }
+
+    //Create file in rental_history for the user or use an existing one.
+    time_t rawtime;
+    struct tm *timeinfo;
+    char buffer[80];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(buffer, 80, "%d/%m/%Y", timeinfo);
+
+    ofstream us;
+    us.open("../files/sold.txt", ofstream::out | ofstream::app);
+    string to_write = item_for_sell + "-" + buffer + "-";
+    us << to_write << "\n";
+    us.close();
+    cout << "Item bought perfectly! Thank you!\n\n";
 }
 
 void rental_history() {
