@@ -132,9 +132,14 @@ void rent() {
         }
     }
 
+    vector<Item> rent;
     for (Item i : items) {
-        if (i.getType() == type) {
-            string item_to_print = i.getId() + " " + i.getBrand() + " " + i.getModel() + " " + i.getSpecs() + "\n";
+        if (i.getType() == type && i.getRented() > 0) { //Just print available products
+            rent.emplace_back(i);
+            string item_to_print =
+                    "ID " + to_string(i.getId()) + " - " + i.getBrand() + " " + i.getModel() + " " + i.getSpecs() +
+                    "\tItems available: " +
+                    to_string(i.getRented()) + "\n";
             cout << item_to_print;
         }
     }
@@ -142,6 +147,20 @@ void rent() {
     string item_for_rent;
     cout << "What item do you want? Choose one id:";
     cin >> item_for_rent;
+    bool good_id = false;
+    while (!good_id) {
+        for (Item i : rent) {
+            if (item_for_rent == to_string(i.getId())) {
+                i.setRented(i.getRented() - 1); //Decrease the rented available.
+                good_id = true;
+
+            }
+        }
+        if (!good_id) {
+            cout << "The item has to be on the list. Try again: ";
+            cin >> item_for_rent;
+        }
+    }
 
     //Create file in rental_history for the user or use an existing one.
     time_t rawtime;
@@ -159,7 +178,6 @@ void rent() {
     cout << "Item rented perfectly! Thank you " + username + "\n\n";
 
     //TODO need to decrease the rented quantity on the item.
-    //TODO fail on print. WTF.
 }
 
 void buy() {
