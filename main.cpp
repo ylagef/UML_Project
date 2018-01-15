@@ -132,7 +132,6 @@ void rent() {
         }
     }
 
-    locale loc;
     for (Item i : items) {
         if (i.getType() == type) {
             string item_to_print = i.getId() + " " + i.getBrand() + " " + i.getModel() + " " + i.getSpecs() + "\n";
@@ -144,8 +143,7 @@ void rent() {
     cout << "What item do you want? Choose one id:";
     cin >> item_for_rent;
 
-    //Create file in rental_history or use an existing one.
-    //Save changes on users.txt file
+    //Create file in rental_history for the user or use an existing one.
     time_t rawtime;
     struct tm *timeinfo;
     char buffer[80];
