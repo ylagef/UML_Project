@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include <cstring>
 #include <vector>
 
 #include "Item.h"
 #include "Usr.h"
+#include <time.h>       /* time_t, struct tm, time, localtime, strftime */
 
 using namespace std;
 vector<Item> items;
@@ -21,8 +21,8 @@ void setup() {
             int i = 0;
             string item[10] = {};
             size_t pos = 0;
-            std::string token;
-            while ((pos = line.find("-")) != std::string::npos) {
+            string token;
+            while ((pos = line.find("-")) != string::npos) {
                 token = line.substr(0, pos);
                 item[i] = token;
                 i++;
@@ -48,8 +48,8 @@ void setup() {
             int i = 0;
             string user[10] = {};
             size_t pos = 0;
-            std::string token;
-            while ((pos = line.find("-")) != std::string::npos) {
+            string token;
+            while ((pos = line.find("-")) != string::npos) {
                 token = line.substr(0, pos);
                 user[i] = token;
                 i++;
@@ -67,7 +67,7 @@ void setup() {
 void save_changes() {
     //Save changes on items.txt file
     ofstream it;
-    it.open("../files/items.txt", std::ofstream::out | std::ofstream::trunc);
+    it.open("../files/items.txt", ofstream::out | ofstream::trunc);
     for (Item item : items) {
         /*
               int id = item.getId();
@@ -93,25 +93,13 @@ void save_changes() {
 
     //Save changes on users.txt file
     ofstream us;
-    us.open("../files/users.txt", std::ofstream::out | std::ofstream::trunc);
+    us.open("../files/users.txt", ofstream::out | ofstream::trunc);
     for (Usr user : users) {
         string to_write = user.getUsername() + "-" + user.getName() + "-" + user.getSurname() + "-" +
                           user.getDatebirth() + "-";
         us << to_write << "\n";
     }
     us.close();
-}
-
-void rent() {
-
-}
-
-void buy() {
-
-}
-
-void rental_history() {
-
 }
 
 //Check if the username uname already exists.
@@ -123,6 +111,67 @@ bool username_exists(string uname) {
     }
     return false;
 }
+
+void rent() {
+    string username;
+    cout << "Okay, first I need your username. You have to be registered for rent: ";
+    cin >> username;
+    while (!username_exists(username)) {
+        cout << "This username is not in our database. Try again: ";
+        cin >> username;
+    }
+
+    string type;
+    bool valid = false;
+    while (!valid) {
+        cout
+                << "We have different types:\nL for Laptops.\nM for Mobile.\nD for Desktop.\nC for Console\nWhat do you want to rent?";
+        cin >> type;
+        if (type != "M" || type != "L" || type != "D" || type != "C") {
+            valid = true;
+        }
+    }
+
+    locale loc;
+    for (Item i : items) {
+        if (i.getType() == type) {
+            string item_to_print = i.getId() + " " + i.getBrand() + " " + i.getModel() + " " + i.getSpecs() + "\n";
+            cout << item_to_print;
+        }
+    }
+
+    string item_for_rent;
+    cout << "What item do you want? Choose one id:";
+    cin >> item_for_rent;
+
+    //Create file in rental_history or use an existing one.
+    //Save changes on users.txt file
+    time_t rawtime;
+    struct tm *timeinfo;
+    char buffer[80];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(buffer, 80, "%d/%m/%Y", timeinfo);
+
+    ofstream us;
+    us.open("../files/rental_history/" + username + ".txt", ofstream::out | ofstream::app);
+    string to_write = username + "-" + item_for_rent + "-" + buffer + "-";
+    us << to_write << "\n";
+    us.close();
+    cout << "Item rented perfectly! Thank you " + username + "\n\n";
+
+    //TODO need to decrease the rented quantity on the item.
+    //TODO fail on print. WTF.
+}
+
+void buy() {
+
+}
+
+void rental_history() {
+
+}
+
 
 //Ask info for new user and add it to the vector users.
 void new_user() {
@@ -174,8 +223,8 @@ void main_menu() {
 
 //Basic operations.
 int main() {
-    setup();
-    main_menu();
-    save_changes();
-    exit(0);
+    setup(); //Prepare the vectors with the file content.
+    main_menu(); //Show main menu.
+    save_changes(); //Save vector changes into the files.
+    exit(0); //Finish program.
 }

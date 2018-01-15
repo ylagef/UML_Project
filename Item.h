@@ -63,6 +63,7 @@ public:
     int getTotal() const;
 
     void setTotal(int total);
+
 };
 
 
