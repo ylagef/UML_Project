@@ -11,10 +11,9 @@ vector<Item> items;
 vector<Usr> users;
 
 
-// Create the files for items and rental history
+// Create the files for items and rental history. Pass it into the vextors.
 void setup() {
-    //Read from files
-    //items.txt
+    //Read from items.txt
     string line;
     ifstream it("../files/items.txt");
     if (it.is_open()) {
@@ -41,7 +40,7 @@ void setup() {
         it.close();
     } else cout << "Unable to open file";
 
-    //users.txt
+    //Read from users.txt
     string line2;
     ifstream us("../files/users.txt");
     if (us.is_open()) {
@@ -64,32 +63,31 @@ void setup() {
     } else cout << "Unable to open file";
 }
 
-
+//Save the changes made into the files.
 void save_changes() {
-
+    //Save changes on items.txt file
     ofstream it("../files/items.txt");
-    if (it.is_open()) {
-        for (Item i : items) {
-            string to_write;
-            to_write = i.getId() + "-" + i.getType() + "-" + i.getBrand() + "-" +
-                       i.getModel() + "-" + i.getSpecs() + "-" + to_string(i.getPrice()) +
-                       "-" + to_string(i.getRented()) + "-" + to_string(i.getSold()) + "-" +
-                       to_string(i.getTotal()) + "-";
-            it << to_write << "\n";
-        }
-        it.close();
-    } else cout << "Unable to open file";
+    for (Item item : items) {
+        string to_write;
+        to_write = item.getId() + "-" + item.getType() + "-" + item.getBrand() + "-" +
+                   item.getModel() + "-" + item.getSpecs() + "-" + to_string(item.getPrice()) +
+                   "-" + to_string(item.getRented()) + "-" + to_string(item.getSold()) + "-" +
+                   to_string(item.getTotal()) + "-";
+        it << to_write << "\n";
+    }
+    it.close();
 
+
+    //Save changes on users.txt file
     ofstream us("../files/users.txt");
-    if (us.is_open()) {
-        for (Usr u:users) {
-            string to_write;
-            to_write = u.getUsername() + "-" + u.getName() + "-" + u.getSurname() + "-" +
-                       u.getDatebirth() + "-";
-            us << to_write << "\n";
-        }
-        us.close();
-    } else cout << "Unable to open file";
+    for (Usr user:users) {
+        string to_write;
+        to_write = user.getUsername() + "-" + user.getName() + "-" + user.getSurname() + "-" +
+                   user.getDatebirth() + "-";
+        us << to_write << "\n";
+    }
+    us.close();
+
 }
 
 void rent() {
@@ -104,6 +102,7 @@ void rental_history() {
 
 }
 
+//Check if the username uname already exists.
 bool username_exists(string uname) {
     for (int i = 0; i < sizeof(users); i++) {
         if (users[i].getUsername() == uname) {
@@ -113,6 +112,7 @@ bool username_exists(string uname) {
     return false;
 }
 
+//Ask info for new user and add it to the vector users.
 void new_user() {
     string name, surname, date_birth, username;
     cout << "Okay, let's register you. What's your name?";
@@ -131,6 +131,7 @@ void new_user() {
     cout << "User " << username << " created successful.";
 }
 
+//Show the main menu with the options.
 void main_menu() {
     int option;
     cout << "Welcome to our shop.";
@@ -159,7 +160,7 @@ void main_menu() {
 
 }
 
-
+//Basic operations.
 int main() {
     setup();
     main_menu();
