@@ -1,15 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <ctime>
 
 #include "Item.h"
 #include "Usr.h"
-#include <time.h>       /* time_t, struct tm, time, localtime, strftime */
 
 using namespace std;
+
 vector<Item> items;
 vector<Usr> users;
-
 
 // Create the files for items and rental history. Pass it into the vectors.
 void setup() {
@@ -22,7 +22,7 @@ void setup() {
             string item[10] = {};
             size_t pos = 0;
             string token;
-            while ((pos = line.find("-")) != string::npos) {
+            while ((pos = line.find('-')) != string::npos) {
                 token = line.substr(0, pos);
                 item[i] = token;
                 i++;
@@ -49,7 +49,7 @@ void setup() {
             string user[10] = {};
             size_t pos = 0;
             string token;
-            while ((pos = line.find("-")) != string::npos) {
+            while ((pos = line.find('-')) != string::npos) {
                 token = line.substr(0, pos);
                 user[i] = token;
                 i++;
@@ -68,7 +68,7 @@ void save_changes() {
     //Save changes on items.txt file
     ofstream it;
     it.open("../files/items.txt", ofstream::out | ofstream::trunc);
-    for (Item item : items) {
+    for (const Item &item : items) {
 
         string to_write = to_string(item.getId()) + "-" + item.getType() + "-" + item.getBrand() + "-" +
                           item.getModel() + "-" + item.getSpecs() + "-" + to_string(item.getPrice()) +
@@ -82,7 +82,7 @@ void save_changes() {
     //Save changes on users.txt file
     ofstream us;
     us.open("../files/users.txt", ofstream::out | ofstream::trunc);
-    for (Usr user : users) {
+    for (const Usr &user : users) {
         string to_write = user.getUsername() + "-" + user.getName() + "-" + user.getSurname() + "-" +
                           user.getDatebirth() + "-";
         us << to_write << "\n";
@@ -91,9 +91,9 @@ void save_changes() {
 }
 
 //Check if the username uname already exists.
-bool username_exists(string uname) {
-    for (int i = 0; i < sizeof(users); i++) {
-        if (users[i].getUsername() == uname) {
+bool username_exists(const string &string1) {
+    for (auto &user : users) {
+        if (user.getUsername() == string1) {
             return true;
         }
     }
@@ -159,10 +159,48 @@ void rent() {
 
     ofstream us;
     us.open("../files/rental_history/" + username + ".txt", ofstream::out | ofstream::app);
-    string to_write = username + "-" + item_for_rent + "-" + buffer + "-";
+    string to_write = item_for_rent + "-" + buffer + "-0-";
     us << to_write << "\n";
     us.close();
     cout << "Item rented perfectly! Thank you " + username + "\n\n";
+}
+
+void return_item() { //TODO create vector and maybe rent class?
+    string username;
+    cout << "Okay, first I need your username. You have to be registered: ";
+    cin >> username;
+    while (!username_exists(username)) {
+        cout << "This username is not in our database. Try again: ";
+        cin >> username;
+    }
+
+    string line;
+    ifstream r("../files/rental_history/" + username + ".txt");
+    if (r.is_open()) {
+        while (getline(r, line)) {
+            int i = 0;
+            string rent[10] = {};
+            size_t pos = 0;
+            string token;
+            while ((pos = line.find('-')) != string::npos) {
+                token = line.substr(0, pos);
+                rent[i] = token;
+                i++;
+                line.erase(0, pos + 1);
+            }
+            string returned;
+            if (rent[2] == "0") {
+                returned = "NO";
+            } else {
+                returned = "YES";
+            }
+            cout << "Item ID: " + rent[0] + " Date: " + rent[1] + " Returned: " + returned + "\n";
+        }
+        r.close();
+    } else cout << "Unable to open file. This user may not have rented.\n";
+
+    cout << "Select the item id you want to return:";
+
 }
 
 void buy() {
@@ -196,9 +234,9 @@ void buy() {
     while (!good_id) {
         for (Item i : sell) {
             if (item_for_sell == to_string(i.getId())) {
-                i.setTotal(i.getTotal() -
-                           1); //Decrease the selled available. //TODO why is not decreasing on the item itself?
+                i.setTotal(i.getTotal() - 1); //Decrease the total.
                 i.setSold(i.getSold() + 1); //Increase the sold value.
+                // TODO why is not decreasing on the item itself?
                 good_id = true;
             }
         }
@@ -209,12 +247,12 @@ void buy() {
     }
 
     //Create file in rental_history for the user or use an existing one.
-    time_t rawtime;
-    struct tm *timeinfo;
+    time_t time1;
+    struct tm *tm1;
     char buffer[80];
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-    strftime(buffer, 80, "%d/%m/%Y", timeinfo);
+    time(&time1);
+    tm1 = localtime(&time1);
+    strftime(buffer, 80, "%d/%m/%Y", tm1);
 
     ofstream us;
     us.open("../files/sold.txt", ofstream::out | ofstream::app);
@@ -234,24 +272,29 @@ void rental_history() {
     }
 
     string line;
-    ifstream sold("../files/sold.txt");
-    if (sold.is_open()) {
-        while (getline(sold, line)) {
+    ifstream r("../files/rental_history/" + username + ".txt");
+    if (r.is_open()) {
+        while (getline(r, line)) {
             int i = 0;
-            string sold[10] = {};
+            string rent[10] = {};
             size_t pos = 0;
             string token;
-            while ((pos = line.find("-")) != string::npos) {
+            while ((pos = line.find('-')) != string::npos) {
                 token = line.substr(0, pos);
-                sold[i] = token;
+                rent[i] = token;
                 i++;
                 line.erase(0, pos + 1);
             }
-
-            cout << "Item ID: " + sold[0] + " Date: " + sold[1] + "\n";
+            string returned;
+            if (rent[2] == "0") {
+                returned = "NO";
+            } else {
+                returned = "YES";
+            }
+            cout << "Item ID: " + rent[0] + " Date: " + rent[1] + " Returned: " + returned + "\n";
         }
-        sold.close();
-    } else cout << "Unable to open file";
+        r.close();
+    } else cout << "Unable to open file. This user may not have rented.\n";
 }
 
 //Ask info for new user and add it to the vector users.
@@ -278,22 +321,26 @@ void main_menu() {
     int option;
     cout << "Welcome to our shop.";
     while (true) {
-        cout << " What do you want to do?\n1. Rent. 2. Buy 3. See your rental history. 4. Register new user. 5. Exit.";
+        cout
+                << " What do you want to do?\n1. Rent. 2.Return item. 3. Buy 4. See your rental history. 5. Register new user. 6. Exit.";
         cin >> option;
         switch (option) {
             case 1:
                 rent();
                 break;
             case 2:
-                buy();
+                return_item();
                 break;
             case 3:
-                rental_history();
+                buy();
                 break;
             case 4:
-                new_user();
+                rental_history();
                 break;
             case 5:
+                new_user();
+                break;
+            case 6:
                 return;
             default:
                 cout << "Incorrect option.";
