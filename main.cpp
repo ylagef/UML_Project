@@ -11,7 +11,7 @@ vector<Item> items;
 vector<Usr> users;
 
 
-// Create the files for items and rental history. Pass it into the vextors.
+// Create the files for items and rental history. Pass it into the vectors.
 void setup() {
     //Read from items.txt
     string line;
@@ -69,24 +69,12 @@ void save_changes() {
     ofstream it;
     it.open("../files/items.txt", ofstream::out | ofstream::trunc);
     for (Item item : items) {
-        /*
-              int id = item.getId();
-              string type = item.getType();
-              string brand = item.getBrand();
-              string model = item.getModel();
-              string specs = item.getSpecs();
-              string price = to_string(item.getPrice());
-              string rented = to_string(item.getRented());
-              string sold = to_string(item.getSold());
-              string total = to_string(item.getTotal());
-      */
-        string to_write = item.getId() + "-" + item.getType() + "-" + item.getBrand() + "-" +
+
+        string to_write = to_string(item.getId()) + "-" + item.getType() + "-" + item.getBrand() + "-" +
                           item.getModel() + "-" + item.getSpecs() + "-" + to_string(item.getPrice()) +
                           "-" + to_string(item.getRented()) + "-" + to_string(item.getSold()) + "-" +
                           to_string(item.getTotal()) + "-";
 
-        //string to_write = id + "-" + type + "-" + brand + "-" + model + "-" + specs + "-" + price + "-" + rented + "-"
-        //+sold + "-" + total + "-";
         it << to_write << "\n";
     }
     it.close();
@@ -138,7 +126,7 @@ void rent() {
             rent.emplace_back(i);
             string item_to_print =
                     "ID " + to_string(i.getId()) + " - " + i.getBrand() + " " + i.getModel() + " / " + i.getSpecs() +
-                    "\tItems available: " +
+                    "\t\tItems available: " +
                     to_string(i.getRented()) + "\n";
             cout << item_to_print;
         }
@@ -195,7 +183,7 @@ void buy() {
             sell.emplace_back(i);
             string item_to_print =
                     "ID " + to_string(i.getId()) + " - " + i.getBrand() + " " + i.getModel() + " / " + i.getSpecs() +
-                    "\tItems available: " +
+                    "\t\tItems available: " +
                     to_string(i.getTotal()) + "\n";
             cout << item_to_print;
         }
@@ -208,7 +196,9 @@ void buy() {
     while (!good_id) {
         for (Item i : sell) {
             if (item_for_sell == to_string(i.getId())) {
-                i.setTotal(i.getTotal() - 1); //Decrease the selled available.
+                i.setTotal(i.getTotal() -
+                           1); //Decrease the selled available. //TODO why is not decreasing on the item itself?
+                i.setSold(i.getSold() + 1); //Increase the sold value.
                 good_id = true;
             }
         }
@@ -235,9 +225,34 @@ void buy() {
 }
 
 void rental_history() {
+    string username;
+    cout << "Okay, tell me your username: ";
+    cin >> username;
+    while (!username_exists(username)) {
+        cout << "This username is not in our database. Try again: ";
+        cin >> username;
+    }
 
+    string line;
+    ifstream sold("../files/sold.txt");
+    if (sold.is_open()) {
+        while (getline(sold, line)) {
+            int i = 0;
+            string sold[10] = {};
+            size_t pos = 0;
+            string token;
+            while ((pos = line.find("-")) != string::npos) {
+                token = line.substr(0, pos);
+                sold[i] = token;
+                i++;
+                line.erase(0, pos + 1);
+            }
+
+            cout << "Item ID: " + sold[0] + " Date: " + sold[1] + "\n";
+        }
+        sold.close();
+    } else cout << "Unable to open file";
 }
-
 
 //Ask info for new user and add it to the vector users.
 void new_user() {
