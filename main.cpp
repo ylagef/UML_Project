@@ -131,7 +131,7 @@ void new_user() {
     cin >> name;
     cout << "What's your surname?";
     cin >> surname;
-    cout << "What's your birthday date? (Format DD/MM/YYY)";
+    cout << "What's your birthday date? (Format DD/MM/YYYY)";
     cin >> date_birth;
     cout << "Finally, choose your username:";
     cin >> username;
