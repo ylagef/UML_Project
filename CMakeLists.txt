@@ -3,4 +3,4 @@ project(Project)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Project main.cpp Item.cpp Item.h Usr.cpp Usr.h)
+add_executable(Project main.cpp Item.cpp Item.h Usr.cpp Usr.h Rent.cpp Rent.h)

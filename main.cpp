@@ -5,6 +5,7 @@
 
 #include "Item.h"
 #include "Usr.h"
+#include "Rent.h"
 
 using namespace std;
 
@@ -148,6 +149,25 @@ void rent() {
             cin >> item_for_rent;
         }
     }
+    vector<Rent> rents;
+    string line;
+    ifstream r("../files/rental_history/" + username + ".txt");
+    if (r.is_open()) {
+        while (getline(r, line)) {
+            int i = 0;
+            string rent[10] = {};
+            size_t pos = 0;
+            string token;
+            while ((pos = line.find('-')) != string::npos) {
+                token = line.substr(0, pos);
+                rent[i] = token;
+                i++;
+                line.erase(0, pos + 1);
+            }
+            rents.emplace_back(Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]));
+        }
+        r.close();
+    } else cout << "Unable to open file. This user may not have rented.\n";
 
     //Create file in rental_history for the user or use an existing one.
     time_t rawtime;
@@ -159,13 +179,15 @@ void rent() {
 
     ofstream us;
     us.open("../files/rental_history/" + username + ".txt", ofstream::out | ofstream::app);
-    string to_write = item_for_rent + "-" + buffer + "-0-";
+    string to_write = to_string(rents.back().getRent_id() + 1) + "-" + item_for_rent + "-" + buffer + "-0-";
     us << to_write << "\n";
     us.close();
     cout << "Item rented perfectly! Thank you " + username + "\n\n";
 }
 
 void return_item() { //TODO create vector and maybe rent class?
+    vector<Rent> rents;
+
     string username;
     cout << "Okay, first I need your username. You have to be registered: ";
     cin >> username;
@@ -189,18 +211,51 @@ void return_item() { //TODO create vector and maybe rent class?
                 line.erase(0, pos + 1);
             }
             string returned;
-            if (rent[2] == "0") {
+            if (rent[3] == "0") {
                 returned = "NO";
-            } else {
-                returned = "YES";
+                cout << "Rent ID: " + rent[0] + " / Item ID: " + rent[1] + " Date: " + rent[2] + " Returned: " +
+                        returned +
+                        "\n";
+                rents.emplace_back(Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]));
             }
-            cout << "Item ID: " + rent[0] + " Date: " + rent[1] + " Returned: " + returned + "\n";
         }
         r.close();
     } else cout << "Unable to open file. This user may not have rented.\n";
 
-    cout << "Select the item id you want to return:";
+    int return_id = 0;
+    cout << "Select the rent id you want to return:";
+    cin >> return_id;
 
+    bool good_id = false;
+    while (!good_id) {
+        for (Rent r : rents) {
+            if (return_id == r.getRent_id()) {
+                for (Item i:items) {
+                    if (i.getId() == return_id) {
+                        i.setRented(i.getRented() + 1); //Add one to the available for rent.
+                    }
+                }
+                r.setReturned("1");
+                good_id = true;
+            }
+        }
+        if (!good_id) {
+            cout << "The rental has to be on the list. Try again: ";
+            cin >> return_id;
+        }
+    }
+
+    ofstream us;
+    us.open("../files/rental_history/" + username + ".txt", ofstream::out | ofstream::trunc);
+    for (Rent r:rents) {
+        string to_write =
+                to_string(r.getRent_id()) + "-" + to_string(r.getItem_id()) + "-" + r.getDate() + "-" +
+                r.getReturned() + "-";
+        us << to_write << "\n";
+    }
+    us.close();
+
+    cout << "Item returned successful! Thank you " + username + "\n";
 }
 
 void buy() {
@@ -286,12 +341,13 @@ void rental_history() {
                 line.erase(0, pos + 1);
             }
             string returned;
-            if (rent[2] == "0") {
+            if (rent[3] == "0") {
                 returned = "NO";
             } else {
                 returned = "YES";
             }
-            cout << "Item ID: " + rent[0] + " Date: " + rent[1] + " Returned: " + returned + "\n";
+            cout << "Rent ID: " + rent[0] + " Item ID: " + rent[1] + " Date: " + rent[2] + " Returned: " + returned +
+                    "\n";
         }
         r.close();
     } else cout << "Unable to open file. This user may not have rented.\n";
@@ -322,7 +378,7 @@ void main_menu() {
     cout << "Welcome to our shop.";
     while (true) {
         cout
-                << " What do you want to do?\n1. Rent. 2.Return item. 3. Buy 4. See your rental history. 5. Register new user. 6. Exit.";
+                << " What do you want to do?\n1. Rent. 2. Return item. 3. Buy 4. See your rental history. 5. Register new user. 6. Exit.";
         cin >> option;
         switch (option) {
             case 1:
