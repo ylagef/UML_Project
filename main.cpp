@@ -149,7 +149,7 @@ void rent() {
             cin >> item_for_rent;
         }
     }
-    vector<Rent> rents;
+    vector<Rent *> rents;
     string line;
     ifstream r("../files/rental_history/" + username + ".txt");
     if (r.is_open()) {
@@ -164,7 +164,8 @@ void rent() {
                 i++;
                 line.erase(0, pos + 1);
             }
-            rents.emplace_back(Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]));
+            Rent *re = new Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]);
+            rents.emplace_back(re);
         }
         r.close();
     } else cout << "Unable to open file. This user may not have rented.\n";
@@ -179,14 +180,15 @@ void rent() {
 
     ofstream us;
     us.open("../files/rental_history/" + username + ".txt", ofstream::out | ofstream::app);
-    string to_write = to_string(rents.back().getRent_id() + 1) + "-" + item_for_rent + "-" + buffer + "-0-";
+    string to_write = to_string(rents.back().getRent_id() + 1) + "-" + item_for_rent + "-" + buffer +
+                      "-0-"; //TODO rents.back() not working
     us << to_write << "\n";
     us.close();
     cout << "Item rented perfectly! Thank you " + username + "\n\n";
 }
 
 void return_item() {
-    static vector<Rent *> rents_return; //TODO aquí es donde, según vi en internet, hay que ponerle el *
+    static vector<Rent *> rents_return;
 
     string username;
     cout << "Okay, first I need your username. You have to be registered: ";
@@ -217,7 +219,7 @@ void return_item() {
                         returned +
                         "\n";
                 Rent* re = new Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]);
-                rents_return.emplace_back(re); //TODO esto es lo que me peta al haberle puesto los *
+                rents_return.emplace_back(re);
             }
         }
         r.close();
@@ -290,9 +292,8 @@ void buy() {
     while (!good_id) {
         for (Item i : sell) {
             if (item_for_sell == to_string(i.getId())) {
-                i.setTotal(i.getTotal() - 1); //Decrease the total.
-                i.setSold(i.getSold() + 1); //Increase the sold value.
-                // TODO why is not decreasing on the item itself?
+                i.setTotal(i.getTotal() - 1); //Decrease the total.     //TODO this set is not working.
+                i.setSold(i.getSold() + 1); //Increase the sold value.  //TODO this set is not working
                 good_id = true;
             }
         }
