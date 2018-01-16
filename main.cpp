@@ -185,8 +185,8 @@ void rent() {
     cout << "Item rented perfectly! Thank you " + username + "\n\n";
 }
 
-void return_item() { //TODO create vector and maybe rent class?
-    vector<Rent> rents;
+void return_item() {
+    static vector<Rent *> rents_return; //TODO aquí es donde, según vi en internet, hay que ponerle el *
 
     string username;
     cout << "Okay, first I need your username. You have to be registered: ";
@@ -216,7 +216,7 @@ void return_item() { //TODO create vector and maybe rent class?
                 cout << "Rent ID: " + rent[0] + " / Item ID: " + rent[1] + " Date: " + rent[2] + " Returned: " +
                         returned +
                         "\n";
-                rents.emplace_back(Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]));
+                // rents_return.emplace_back(Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3])); //TODO esto es lo que me peta al haberle puesto los *
             }
         }
         r.close();
@@ -228,14 +228,14 @@ void return_item() { //TODO create vector and maybe rent class?
 
     bool good_id = false;
     while (!good_id) {
-        for (Rent r : rents) {
-            if (return_id == r.getRent_id()) {
+        for (Rent *r : rents_return) {
+            if (return_id == (*r).getRent_id()) {
                 for (Item i:items) {
                     if (i.getId() == return_id) {
                         i.setRented(i.getRented() + 1); //Add one to the available for rent.
                     }
                 }
-                r.setReturned("1");
+                (*r).setReturned("1"); //TODO este es el set que te digo que es necesario pero no funciona
                 good_id = true;
             }
         }
@@ -247,10 +247,10 @@ void return_item() { //TODO create vector and maybe rent class?
 
     ofstream us;
     us.open("../files/rental_history/" + username + ".txt", ofstream::out | ofstream::trunc);
-    for (Rent r:rents) {
+    for (Rent *r:rents_return) {
         string to_write =
-                to_string(r.getRent_id()) + "-" + to_string(r.getItem_id()) + "-" + r.getDate() + "-" +
-                r.getReturned() + "-";
+                to_string((*r).getRent_id()) + "-" + to_string((*r).getItem_id()) + "-" + (*r).getDate() + "-" +
+                (*r).getReturned() + "-";
         us << to_write << "\n";
     }
     us.close();
