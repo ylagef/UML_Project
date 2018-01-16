@@ -140,7 +140,7 @@ void rent() {
     while (!good_id) {
         for (Item i : rent) {
             if (item_for_rent == to_string(i.getId())) {
-                i.setRented(i.getRented() - 1); //Decrease the rented available.
+                i.setRented(i.getRented() - 1); //Decrease the rented available. //TODO Fix this.
                 good_id = true;
             }
         }
@@ -235,7 +235,7 @@ void return_item() {
             if (return_id == (*r).getRent_id()) {
                 for (Item i:items) {
                     if (i.getId() == return_id) {
-                        i.setRented(i.getRented() + 1); //Add one to the available for rent.
+                        i.setRented(i.getRented() + 1); //Add one to the available for rent. //TODO Fix this
                     }
                 }
                 (*r).setReturned("1"); //TODO este es el set que te digo que es necesario pero no funciona
