@@ -216,7 +216,8 @@ void return_item() {
                 cout << "Rent ID: " + rent[0] + " / Item ID: " + rent[1] + " Date: " + rent[2] + " Returned: " +
                         returned +
                         "\n";
-                // rents_return.emplace_back(Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3])); //TODO esto es lo que me peta al haberle puesto los *
+                Rent* re = new Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]);
+                rents_return.emplace_back(re); //TODO esto es lo que me peta al haberle puesto los *
             }
         }
         r.close();
