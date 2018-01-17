@@ -180,7 +180,7 @@ void rent() {
 
     ofstream us;
     us.open("../files/rental_history/" + username + ".txt", ofstream::out | ofstream::app);
-    string to_write = to_string(rents.back().getRent_id() + 1) + "-" + item_for_rent + "-" + buffer +
+    string to_write = to_string(rents.back()->getRent_id() + 1) + "-" + item_for_rent + "-" + buffer +
                       "-0-"; //TODO rents.back() not working
     us << to_write << "\n";
     us.close();
