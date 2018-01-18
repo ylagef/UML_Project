@@ -9,8 +9,8 @@
 
 using namespace std;
 
-vector<Item> items;
-vector<Usr> users;
+vector<Item *> items;
+vector<Usr *> users;
 
 // Create the files for items and rental history. Pass it into the vectors.
 void setup() {
@@ -36,7 +36,8 @@ void setup() {
             int sold = stoi(item[7]);
             int total = stoi(item[8]);
 
-            items.emplace_back(id, item[1], item[2], item[3], item[4], price, rented, sold, total);
+            Item *it = new Item(id, item[1], item[2], item[3], item[4], price, rented, sold, total);
+            items.emplace_back(it);
         }
         it.close();
     } else cout << "Unable to open file";
@@ -56,8 +57,8 @@ void setup() {
                 i++;
                 line.erase(0, pos + 1);
             }
-
-            users.emplace_back(user[0], user[1], user[2], user[3]);
+            Usr *us = new Usr(user[0], user[1], user[2], user[3]);
+            users.emplace_back(us);
 
         }
         us.close();
@@ -69,12 +70,12 @@ void save_changes() {
     //Save changes on items.txt file
     ofstream it;
     it.open("../files/items.txt", ofstream::out | ofstream::trunc);
-    for (const Item &item : items) {
+    for (Item *item : items) {
 
-        string to_write = to_string(item.getId()) + "-" + item.getType() + "-" + item.getBrand() + "-" +
-                          item.getModel() + "-" + item.getSpecs() + "-" + to_string(item.getPrice()) +
-                          "-" + to_string(item.getRented()) + "-" + to_string(item.getSold()) + "-" +
-                          to_string(item.getTotal()) + "-";
+        string to_write = to_string(item->getId()) + "-" + item->getType() + "-" + item->getBrand() + "-" +
+                          item->getModel() + "-" + item->getSpecs() + "-" + to_string(item->getPrice()) +
+                          "-" + to_string(item->getRented()) + "-" + to_string(item->getSold()) + "-" +
+                          to_string(item->getTotal()) + "-";
 
         it << to_write << "\n";
     }
@@ -83,9 +84,9 @@ void save_changes() {
     //Save changes on users.txt file
     ofstream us;
     us.open("../files/users.txt", ofstream::out | ofstream::trunc);
-    for (const Usr &user : users) {
-        string to_write = user.getUsername() + "-" + user.getName() + "-" + user.getSurname() + "-" +
-                          user.getDatebirth() + "-";
+    for (Usr *user : users) {
+        string to_write = user->getUsername() + "-" + user->getName() + "-" + user->getSurname() + "-" +
+                          user->getDatebirth() + "-";
         us << to_write << "\n";
     }
     us.close();
@@ -93,8 +94,8 @@ void save_changes() {
 
 //Check if the username uname already exists.
 bool username_exists(const string &string1) {
-    for (auto &user : users) {
-        if (user.getUsername() == string1) {
+    for (Usr *user : users) {
+        if (user->getUsername() == string1) {
             return true;
         }
     }
@@ -121,14 +122,15 @@ void rent() {
         }
     }
 
-    vector<Item> rent;
-    for (Item i : items) {
-        if (i.getType() == type && i.getRented() > 0) { //Just print available products
+    vector<Item *> rent;
+    for (Item *i : items) {
+        if (i->getType() == type && i->getRented() > 0) { //Just print available products
             rent.emplace_back(i);
             string item_to_print =
-                    "ID " + to_string(i.getId()) + " - " + i.getBrand() + " " + i.getModel() + " / " + i.getSpecs() +
+                    "ID " + to_string(i->getId()) + " - " + i->getBrand() + " " + i->getModel() + " / " +
+                    i->getSpecs() +
                     "\t\tItems available: " +
-                    to_string(i.getRented()) + "\n";
+                    to_string(i->getRented()) + "\n";
             cout << item_to_print;
         }
     }
@@ -138,9 +140,9 @@ void rent() {
     cin >> item_for_rent;
     bool good_id = false;
     while (!good_id) {
-        for (Item i : rent) {
-            if (item_for_rent == to_string(i.getId())) {
-                i.setRented(i.getRented() - 1); //Decrease the rented available. //TODO Fix this.
+        for (Item *i : rent) {
+            if (item_for_rent == to_string(i->getId())) {
+                i->setRented(i->getRented() - 1); //Decrease the rented available. //TODO Fix this.
                 good_id = true;
             }
         }
@@ -218,7 +220,7 @@ void return_item() {
                 cout << "Rent ID: " + rent[0] + " / Item ID: " + rent[1] + " Date: " + rent[2] + " Returned: " +
                         returned +
                         "\n";
-                Rent* re = new Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]);
+                Rent *re = new Rent(stoi(rent[0]), stoi(rent[1]), rent[2], rent[3]);
                 rents_return.emplace_back(re);
             }
         }
@@ -233,9 +235,9 @@ void return_item() {
     while (!good_id) {
         for (Rent *r : rents_return) {
             if (return_id == (*r).getRent_id()) {
-                for (Item i:items) {
-                    if (i.getId() == return_id) {
-                        i.setRented(i.getRented() + 1); //Add one to the available for rent. //TODO Fix this
+                for (Item *i:items) {
+                    if (i->getId() == return_id) {
+                        i->setRented(i->getRented() + 1); //Add one to the available for rent. //TODO Fix this
                     }
                 }
                 (*r).setReturned("1"); //TODO este es el set que te digo que es necesario pero no funciona
@@ -273,14 +275,15 @@ void buy() {
         }
     }
 
-    vector<Item> sell;
-    for (Item i : items) {
-        if (i.getType() == type && i.getTotal() > 0) { //Just print available products
+    vector<Item *> sell;
+    for (Item *i : items) {
+        if (i->getType() == type && i->getTotal() > 0) { //Just print available products
             sell.emplace_back(i);
             string item_to_print =
-                    "ID " + to_string(i.getId()) + " - " + i.getBrand() + " " + i.getModel() + " / " + i.getSpecs() +
+                    "ID " + to_string(i->getId()) + " - " + i->getBrand() + " " + i->getModel() + " / " +
+                    i->getSpecs() +
                     "\t\tItems available: " +
-                    to_string(i.getTotal()) + "\n";
+                    to_string(i->getTotal()) + "\n";
             cout << item_to_print;
         }
     }
@@ -290,10 +293,10 @@ void buy() {
     cin >> item_for_sell;
     bool good_id = false;
     while (!good_id) {
-        for (Item i : sell) {
-            if (item_for_sell == to_string(i.getId())) {
-                i.setTotal(i.getTotal() - 1); //Decrease the total.     //TODO this set is not working.
-                i.setSold(i.getSold() + 1); //Increase the sold value.  //TODO this set is not working
+        for (Item *i : sell) {
+            if (item_for_sell == to_string(i->getId())) {
+                i->setTotal(i->getTotal() - 1); //Decrease the total->     //TODO this set is not working->
+                i->setSold(i->getSold() + 1); //Increase the sold value.  //TODO this set is not working
                 good_id = true;
             }
         }
@@ -370,7 +373,8 @@ void new_user() {
         cout << "This username is already on use. Please select other.";
         cin >> username;
     }
-    users.emplace_back(Usr(username, name, surname, date_birth));
+    Usr *us = new Usr(username, name, surname, date_birth);
+    users.emplace_back(us);
     cout << "User " << username << " created successful.";
 }
 
