@@ -126,7 +126,7 @@ string ask_username() {
 }
 
 //Get the history of rents of an user given
-vector<Rent *> get_user_rents(const string &username) {
+vector<Rent *> get_user_rents(const string &username, bool print) {
     vector<Rent *> rents;
     string line;
     ifstream r("../files/rental_history/" + username + ".txt");
@@ -141,6 +141,17 @@ vector<Rent *> get_user_rents(const string &username) {
                 string1[i] = token;
                 i++;
                 line.erase(0, pos + 1);
+            }
+            if (print) {
+                string returned;
+                if (string1[3] == "0") {
+                    returned = "NO";
+                } else {
+                    returned = "YES";
+                }
+                cout << "Rent ID: " + string1[0] + " Item ID: " + string1[1] + " Date: " + string1[2] + " Returned: " +
+                        returned +
+                        "\n";
             }
             auto *re = new Rent(stoi(string1[0]), stoi(string1[1]), string1[2], string1[3]);
             rents.emplace_back(re);
@@ -236,7 +247,7 @@ void rent() {
 
     string item_for_rent = ask_item_id(rent);
 
-    vector<Rent *> rental_register = get_user_rents(username);
+    vector<Rent *> rental_register = get_user_rents(username, false);
 
     //Create file in rental_history for the user or use an existing one.
     string actual_time = get_actual_time();
@@ -325,23 +336,7 @@ void buy() {
 
     vector<Item *> sell = print_items(false, true, type);
 
-    string item_for_sell;
-    cout << "What item do you want? Choose one id:";
-    cin >> item_for_sell;
-    bool good_id = false;
-    while (!good_id) {
-        for (Item *i : sell) {
-            if (item_for_sell == to_string(i->getId())) {
-                i->setTotal(i->getTotal() - 1); //Decrease the total.
-                i->setSold(i->getSold() + 1); //Increase the sold value.
-                good_id = true;
-            }
-        }
-        if (!good_id) {
-            cout << "The item has to be on the list. Try again: ";
-            cin >> item_for_sell;
-        }
-    }
+    string item_for_sell = ask_item_id(sell);
 
     //Create file in rental_history for the user or use an existing one.
     string actual_time = get_actual_time();
@@ -357,32 +352,7 @@ void buy() {
 //Function for show the rental history of an user
 void rental_history() {
     string username = ask_username();
-
-    string line;
-    ifstream r("../files/rental_history/" + username + ".txt");
-    if (r.is_open()) {
-        while (getline(r, line)) {
-            int i = 0;
-            string rent[10] = {};
-            size_t pos = 0;
-            string token;
-            while ((pos = line.find('-')) != string::npos) {
-                token = line.substr(0, pos);
-                rent[i] = token;
-                i++;
-                line.erase(0, pos + 1);
-            }
-            string returned;
-            if (rent[3] == "0") {
-                returned = "NO";
-            } else {
-                returned = "YES";
-            }
-            cout << "Rent ID: " + rent[0] + " Item ID: " + rent[1] + " Date: " + rent[2] + " Returned: " + returned +
-                    "\n";
-        }
-        r.close();
-    } else cout << "Unable to open file. This user may not have rented.\n";
+    vector<Rent *> r = get_user_rents(username, true);
 }
 
 //Ask info for new user and add it to the vector users.
