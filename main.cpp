@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <ctime>
+#include <fileapi.h>
 
 #include "Item.h"
 #include "Usr.h"
@@ -130,7 +131,7 @@ string ask_username() {
 }
 
 //Get the history of rents of an user given
-vector<Rent *> get_user_rents(const string &username, bool print) {
+vector<Rent *> get_user_rents(const string &username, bool print, bool renting) {
     vector<Rent *> rents;
     string line;
     ifstream r("../files/rental_history/" + username + ".txt");
@@ -161,7 +162,7 @@ vector<Rent *> get_user_rents(const string &username, bool print) {
             rents.emplace_back(re);
         }
         r.close();
-    } else cout << "Unable to open file. This user may not have rented.\n";
+    } else { if (!renting) { cout << "This user may not have rented."; }}
     return rents;
 }
 
@@ -243,6 +244,8 @@ string ask_item_id(vector<Item *> rent) {
 
 //Function for renting items
 void rent() {
+    CreateDirectory("../files/rental_history", nullptr);
+
     string username = ask_username();
 
     if (username == "esc") {
@@ -262,7 +265,7 @@ void rent() {
 
     string item_for_rent = ask_item_id(rent);
 
-    vector<Rent *> rental_register = get_user_rents(username, false);
+    vector<Rent *> rental_register = get_user_rents(username, false, true);
 
     //Create file in rental_history for the user or use an existing one.
     string actual_time = get_actual_time();
@@ -391,8 +394,8 @@ void rental_history() {
     if (username == "esc") {
         return;
     }
-
-    vector<Rent *> r = get_user_rents(username, true);
+    cout << "Items rented by " + username + ":\n";
+    vector<Rent *> r = get_user_rents(username, true, false);
 }
 
 //Ask info for new user and add it to the vector users.
@@ -418,10 +421,10 @@ void new_user() {
 //Show the main menu with the options.
 void main_menu() {
     int option;
-    cout << "Welcome to our shop.\n";
+    cout << "Welcome to our shop.";
     while (true) {
         cout
-                << "\tWhat do you want to do?\n\t1. Rent. 2. Return item. 3. Buy 4. See your rental history. 5. Register new user. 6. Exit.\n";
+                << "\n\tWhat do you want to do?\n\t1. Rent. 2. Return item. 3. Buy 4. See your rental history. 5. Register new user. 6. Exit.\n";
         cin >> option;
         switch (option) {
             case 1:
