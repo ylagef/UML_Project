@@ -120,8 +120,11 @@ string ask_username() {
     cout << "Okay, first I need your username. You have to be registered.\n";
     cin >> username;
     while (!username_exists(username)) {
-        cout << "This username is not in our database. Try again:\n";
+        cout << "This username is not in our database. Try again or 'esc' for return to main menu.\n";
         cin >> username;
+        if (username == "esc") {
+            return username;
+        }
     }
     return username;
 }
@@ -242,6 +245,10 @@ string ask_item_id(vector<Item *> rent) {
 void rent() {
     string username = ask_username();
 
+    if (username == "esc") {
+        return;
+    }
+
     string type = ask_type();
 
     cout << "Here you have the available items:\n";
@@ -280,6 +287,10 @@ void return_item() {
     static vector<Rent *> rents_return;
 
     string username = ask_username();
+
+    if (username == "esc") {
+        return;
+    }
 
     string line;
     ifstream r("../files/rental_history/" + username + ".txt");
@@ -376,6 +387,11 @@ void buy() {
 //Function for show the rental history of an user
 void rental_history() {
     string username = ask_username();
+
+    if (username == "esc") {
+        return;
+    }
+
     vector<Rent *> r = get_user_rents(username, true);
 }
 
