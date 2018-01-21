@@ -101,6 +101,7 @@ void save_changes() {
         us << to_write << "\n";
     }
     us.close();
+    cout << "Changes saved successful. See you next time and thank you!\n";
 }
 
 //Check if the username uname already exists.
@@ -116,10 +117,10 @@ bool username_exists(const string &string1) {
 //Ask the user for its username and returns it
 string ask_username() {
     string username;
-    cout << "Okay, first I need your username. You have to be registered.";
+    cout << "Okay, first I need your username. You have to be registered.\n";
     cin >> username;
     while (!username_exists(username)) {
-        cout << "This username is not in our database. Try again: ";
+        cout << "This username is not in our database. Try again:\n";
         cin >> username;
     }
     return username;
@@ -167,7 +168,7 @@ string ask_type() {
     bool valid = false;
     while (!valid) {
         cout
-                << "We have different types:\nL for Laptops.\nM for Mobile.\nD for Desktop.\nC for Console\nWhat do you want to rent?";
+                << "We have different types:\nL for Laptops.\nM for Mobile.\nD for Desktop.\nC for Console\nWhat do you want to rent?\n";
         cin >> type;
         if (type != "M" || type != "L" || type != "D" || type != "C") {
             valid = true;
@@ -219,7 +220,7 @@ vector<Item *> print_items(bool av_rent, bool av_buy, const string &type) {
 //Ask the user for the id of the item wanted
 string ask_item_id(vector<Item *> rent) {
     string item_for_rent;
-    cout << "What item do you want? Choose one id:";
+    cout << "What item do you want? Choose one id:\n";
     cin >> item_for_rent;
     bool good_id = false;
     while (!good_id) {
@@ -230,7 +231,7 @@ string ask_item_id(vector<Item *> rent) {
             }
         }
         if (!good_id) {
-            cout << "The item has to be on the list. Try again: ";
+            cout << "The item has to be on the list. Try again:\n";
             cin >> item_for_rent;
         }
     }
@@ -243,7 +244,14 @@ void rent() {
 
     string type = ask_type();
 
+    cout << "Here you have the available items:\n";
+
     vector<Item *> rent = print_items(true, false, type);
+
+    if (rent.empty()) {
+        cout << "We don't have at this moments this kind of items. Sorry.\n";
+        return;
+    }
 
     string item_for_rent = ask_item_id(rent);
 
@@ -254,11 +262,17 @@ void rent() {
 
     ofstream us;
     us.open("../files/rental_history/" + username + ".txt", ofstream::out | ofstream::app);
-    string to_write = to_string(rental_register.back()->getRent_id() + 1) + "-" + item_for_rent + "-" + actual_time +
+    int new_id;
+    if (!rental_register.empty()) {
+        new_id = rental_register.back()->getRent_id() + 1;
+    } else {
+        new_id = 0;
+    }
+    string to_write = to_string(new_id) + "-" + item_for_rent + "-" + actual_time +
                       "-0-";
     us << to_write << "\n";
     us.close();
-    cout << "Item rented perfectly! Thank you " + username + "\n\n";
+    cout << "Item rented perfectly! Thank you " + username;
 }
 
 //Function for return rented items
@@ -294,8 +308,13 @@ void return_item() {
         r.close();
     } else cout << "Unable to open file. This user may not have rented.\n";
 
+    if (rents_return.empty()) {
+        cout << "You have all your items returned.\n";
+        return;
+    }
+
     int return_id = 0;
-    cout << "Select the rent id you want to return:";
+    cout << "Select the rent id you want to return:\n";
     cin >> return_id;
 
     bool good_id = false;
@@ -312,7 +331,7 @@ void return_item() {
             }
         }
         if (!good_id) {
-            cout << "The rental has to be on the list. Try again: ";
+            cout << "The rental has to be on the list. Try again:\n";
             cin >> return_id;
         }
     }
@@ -327,7 +346,7 @@ void return_item() {
     }
     us.close();
 
-    cout << "Item returned successful! Thank you " + username + "\n";
+    cout << "Item returned successful! Thank you " + username;
 }
 
 //Function for buy items
@@ -335,6 +354,11 @@ void buy() {
     string type = ask_type();
 
     vector<Item *> sell = print_items(false, true, type);
+
+    if (sell.empty()) {
+        cout << "We don't have at this moments this kind of items. Sorry.\n";
+        return;
+    }
 
     string item_for_sell = ask_item_id(sell);
 
@@ -346,7 +370,7 @@ void buy() {
     string to_write = item_for_sell + "-" + actual_time + "-";
     us << to_write << "\n";
     us.close();
-    cout << "Item bought perfectly! Thank you!\n\n";
+    cout << "Item bought perfectly! Thank you!";
 }
 
 //Function for show the rental history of an user
@@ -358,16 +382,16 @@ void rental_history() {
 //Ask info for new user and add it to the vector users.
 void new_user() {
     string name, surname, date_birth, username;
-    cout << "Okay, let's register you. What's your name?";
+    cout << "Okay, let's register you. What's your name?\n";
     cin >> name;
-    cout << "What's your surname?";
+    cout << "What's your surname?\n";
     cin >> surname;
-    cout << "What's your birthday date? (Format DD/MM/YYYY)";
+    cout << "What's your birthday date? (Format DD/MM/YYYY)\n";
     cin >> date_birth;
-    cout << "Finally, choose your username:";
+    cout << "Finally, choose your username:\n";
     cin >> username;
     while (username_exists(username)) {
-        cout << "This username is already on use. Please select other.";
+        cout << "This username is already on use. Please select other:\n";
         cin >> username;
     }
     auto *us = new Usr(username, name, surname, date_birth);
@@ -378,10 +402,10 @@ void new_user() {
 //Show the main menu with the options.
 void main_menu() {
     int option;
-    cout << "Welcome to our shop.";
+    cout << "Welcome to our shop.\n";
     while (true) {
         cout
-                << " What do you want to do?\n1. Rent. 2. Return item. 3. Buy 4. See your rental history. 5. Register new user. 6. Exit.";
+                << "\tWhat do you want to do?\n\t1. Rent. 2. Return item. 3. Buy 4. See your rental history. 5. Register new user. 6. Exit.\n";
         cin >> option;
         switch (option) {
             case 1:
@@ -402,7 +426,7 @@ void main_menu() {
             case 6:
                 return;
             default:
-                cout << "Incorrect option.";
+                cout << "Incorrect option.\n";
         }
     }
 
